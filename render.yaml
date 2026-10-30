@@ -1,0 +1,13 @@
+# Blueprint de Render: despliega la app (API + frontend) como un solo servicio Docker.
+# El disco del plan gratuito es efímero: data/db.json se borra en cada reinicio.
+services:
+  - type: web
+    name: wallet-onboarding-mvp
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/salud
+    envVars:
+      - key: DEMO_SEED
+        value: "true"
+      - key: DEMO_ENDPOINTS
+        value: "true"

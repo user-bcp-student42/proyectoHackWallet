@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wallet Perú · Registro</title>
+  <meta name="description" content="MVP de registro y activación de wallet (demo con datos ficticios)">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/registro" aria-label="Inicio">
+      <span class="brand-mark" aria-hidden="true">W</span>
+      <span>Wallet Perú <small>MVP demo</small></span>
+    </a>
+    <nav aria-label="Secciones">
+      <a href="#/registro" data-ruta="registro">Registro</a>
+      <a href="#/pagos" data-ruta="pagos">Pagos</a>
+      <a href="#/analitica" data-ruta="analitica">Analítica</a>
+    </nav>
+  </header>
+
+  <main id="app" tabindex="-1" aria-live="polite"></main>
+
+  <details class="demo-panel">
+    <summary>Datos de prueba</summary>
+    <ul>
+      <li>Código SMS (OTP simulado): <code>123456</code></li>
+      <li>DNI que la validación de identidad simulada rechaza: <code>99999999</code></li>
+      <li>Cualquier otro DNI de 8 dígitos se aprueba. Usa solo datos ficticios.</li>
+    </ul>
+    <button type="button" class="btn btn-ghost" id="btn-reiniciar-demo">Reiniciar datos de la demo</button>
+  </details>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

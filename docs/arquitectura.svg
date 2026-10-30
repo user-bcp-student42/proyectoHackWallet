@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 760" width="1280" height="760" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="flecha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475467"/>
+    </marker>
+    <style>
+      .t  { font-size: 15px; font-weight: 700; fill: #101828; }
+      .s  { font-size: 12.5px; fill: #475467; }
+      .c  { font-size: 12px; fill: #344054; font-family: Consolas, Menlo, monospace; }
+      .h  { font-size: 13px; font-weight: 700; letter-spacing: .04em; }
+      .ln { stroke: #475467; stroke-width: 1.6; fill: none; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="760" fill="#ffffff"/>
+  <text x="30" y="42" font-size="24" font-weight="800" fill="#101828">Arquitectura · MVP Registro y activación de wallet</text>
+  <text x="30" y="66" class="s">Una sola aplicación: el backend FastAPI sirve la API y el frontend. Datos ficticios; integraciones externas simuladas.</text>
+
+  <!-- Contenedor Docker -->
+  <rect x="205" y="84" width="790" height="430" rx="16" fill="none" stroke="#98a2b3" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text x="222" y="104" class="h" fill="#667085">CONTENEDOR DOCKER · UN SOLO SERVICIO · PUERTO 8000</text>
+
+  <!-- Usuario -->
+  <rect x="30" y="160" width="150" height="110" rx="14" fill="#f2f4f7" stroke="#d0d5dd"/>
+  <rect x="88" y="176" width="34" height="54" rx="6" fill="none" stroke="#344054" stroke-width="2"/>
+  <line x1="99" y1="223" x2="111" y2="223" stroke="#344054" stroke-width="2"/>
+  <text x="105" y="250" text-anchor="middle" class="t">Usuario</text>
+  <text x="105" y="264" text-anchor="middle" class="s">celular / navegador</text>
+  <line x1="180" y1="215" x2="218" y2="215" class="ln" marker-end="url(#flecha)"/>
+
+  <!-- Frontend -->
+  <rect x="220" y="118" width="260" height="380" rx="14" fill="#fffaeb" stroke="#f79009" stroke-width="1.5"/>
+  <text x="240" y="144" class="h" fill="#b54708">FRONTEND · frontend/</text>
+  <text x="240" y="162" class="s">HTML + CSS + JavaScript, sin build</text>
+
+  <rect x="240" y="176" width="220" height="92" rx="10" fill="#ffffff" stroke="#fec84b"/>
+  <text x="254" y="198" class="t">Registro</text>
+  <text x="254" y="217" class="s">Asistente de 5 pasos, barra de</text>
+  <text x="254" y="233" class="s">progreso, errores por campo y</text>
+  <text x="254" y="249" class="s">retomar donde quedó</text>
+
+  <rect x="240" y="280" width="220" height="60" rx="10" fill="#ffffff" stroke="#fec84b"/>
+  <text x="254" y="303" class="t">Pagos</text>
+  <text x="254" y="322" class="s">Entrada solo con wallet ACTIVA</text>
+
+  <rect x="240" y="352" width="220" height="78" rx="10" fill="#ffffff" stroke="#fec84b"/>
+  <text x="254" y="375" class="t">Analítica</text>
+  <text x="254" y="394" class="s">Mediana, embudo, errores,</text>
+  <text x="254" y="410" class="s">reporte mensual MAU / CAC</text>
+
+  <text x="240" y="458" class="c">index.html · app.js</text>
+  <text x="240" y="476" class="c">styles.css</text>
+
+  <!-- Frontend -> Backend -->
+  <line x1="480" y1="300" x2="538" y2="300" class="ln" marker-end="url(#flecha)"/>
+  <text x="509" y="280" text-anchor="middle" class="s">HTTP</text>
+  <text x="509" y="320" text-anchor="middle" class="s">JSON</text>
+
+  <!-- Backend -->
+  <rect x="540" y="118" width="440" height="380" rx="14" fill="#eff4ff" stroke="#2e5bff" stroke-width="1.5"/>
+  <text x="560" y="144" class="h" fill="#1d3fbf">BACKEND · Python + FastAPI · app/</text>
+
+  <rect x="560" y="158" width="400" height="56" rx="10" fill="#ffffff" stroke="#9fb5ff"/>
+  <text x="574" y="181" class="t">API REST  <tspan class="c" font-weight="400">main.py</tspan></text>
+  <text x="574" y="201" class="s">/api/onboardings · /api/wallets/{id}/pagos · /api/analitica · /docs</text>
+
+  <rect x="560" y="226" width="195" height="80" rx="10" fill="#ffffff" stroke="#9fb5ff"/>
+  <text x="574" y="248" class="t">Caso de uso</text>
+  <text x="574" y="266" class="c">onboarding.py</text>
+  <text x="574" y="285" class="s">pasos, activación,</text>
+  <text x="574" y="300" class="s">emisión de eventos</text>
+
+  <rect x="765" y="226" width="195" height="80" rx="10" fill="#ffffff" stroke="#9fb5ff"/>
+  <text x="779" y="248" class="t">Analítica</text>
+  <text x="779" y="266" class="c">analytics.py</text>
+  <text x="779" y="285" class="s">mediana, embudo,</text>
+  <text x="779" y="300" class="s">nuevos activos y CAC</text>
+
+  <rect x="560" y="318" width="195" height="72" rx="10" fill="#ffffff" stroke="#9fb5ff"/>
+  <text x="574" y="340" class="t">Reglas de negocio</text>
+  <text x="574" y="358" class="c">domain.py</text>
+  <text x="574" y="377" class="s">validaciones y estados</text>
+
+  <rect x="765" y="318" width="195" height="72" rx="10" fill="#ffffff" stroke="#9fb5ff"/>
+  <text x="779" y="340" class="t">Datos demo</text>
+  <text x="779" y="358" class="c">seed.py</text>
+  <text x="779" y="377" class="s">3 meses ficticios</text>
+
+  <rect x="560" y="402" width="400" height="80" rx="10" fill="#ffffff" stroke="#9fb5ff"/>
+  <text x="574" y="425" class="t">Almacenamiento  <tspan class="c" font-weight="400">store.py</tspan></text>
+  <text x="574" y="445" class="s">JsonStore: lock + escritura atómica del archivo</text>
+  <text x="574" y="463" class="s">(en memoria para las pruebas)</text>
+
+  <!-- Persistencia -->
+  <rect x="1040" y="226" width="225" height="80" rx="14" fill="#f0f9f4" stroke="#12b76a" stroke-width="1.5"/>
+  <text x="1056" y="250" class="h" fill="#067647">MEMORIA</text>
+  <text x="1056" y="270" class="s">Eventos y gasto ficticios</text>
+  <text x="1056" y="287" class="s">(se regeneran al arrancar)</text>
+  <path d="M960 354 H1000 V266 H1038" class="ln" marker-end="url(#flecha)"/>
+
+  <rect x="1040" y="342" width="225" height="140" rx="14" fill="#f0f9f4" stroke="#12b76a" stroke-width="1.5"/>
+  <text x="1056" y="366" class="h" fill="#067647">ARCHIVO JSON</text>
+  <text x="1056" y="386" class="c">data/db.json</text>
+  <text x="1056" y="408" class="s">• onboardings</text>
+  <text x="1056" y="426" class="s">• wallets</text>
+  <text x="1056" y="444" class="s">• eventos sin datos personales</text>
+  <text x="1056" y="462" class="s">• gasto_adquisicion</text>
+  <line x1="960" y1="442" x2="1038" y2="442" class="ln" marker-end="url(#flecha)"/>
+
+  <!-- Integraciones simuladas -->
+  <line x1="760" y1="498" x2="760" y2="540" class="ln" stroke-dasharray="5 4" marker-end="url(#flecha)"/>
+  <text x="772" y="526" class="s">integraciones externas</text>
+  <rect x="540" y="542" width="136" height="68" rx="10" fill="#f9fafb" stroke="#98a2b3" stroke-dasharray="5 4"/>
+  <text x="608" y="565" text-anchor="middle" class="t" font-size="13.5">OTP por SMS</text>
+  <text x="608" y="584" text-anchor="middle" class="s">simulado:</text>
+  <text x="608" y="600" text-anchor="middle" class="c">123456</text>
+  <rect x="692" y="542" width="136" height="68" rx="10" fill="#f9fafb" stroke="#98a2b3" stroke-dasharray="5 4"/>
+  <text x="760" y="565" text-anchor="middle" class="t" font-size="13.5">Identidad (DNI)</text>
+  <text x="760" y="584" text-anchor="middle" class="s">simulado: rechaza</text>
+  <text x="760" y="600" text-anchor="middle" class="c">99999999</text>
+  <rect x="844" y="542" width="136" height="68" rx="10" fill="#f9fafb" stroke="#98a2b3" stroke-dasharray="5 4"/>
+  <text x="912" y="565" text-anchor="middle" class="t" font-size="13.5">Pagos</text>
+  <text x="912" y="584" text-anchor="middle" class="s">otra historia del MVP</text>
+  <text x="912" y="600" text-anchor="middle" class="s">(solo la entrada)</text>
+
+  <!-- Dónde corre -->
+  <line x1="30" y1="640" x2="1250" y2="640" stroke="#eaecf0"/>
+  <text x="30" y="668" class="h" fill="#667085">DÓNDE CORRE</text>
+  <rect x="30" y="682" width="390" height="56" rx="10" fill="#f2f4f7"/>
+  <text x="46" y="704" class="t" font-size="14">Local</text>
+  <text x="46" y="724" class="c">uvicorn app.main:create_app --factory</text>
+  <rect x="440" y="682" width="390" height="56" rx="10" fill="#f2f4f7"/>
+  <text x="456" y="704" class="t" font-size="14">Nube (opcional)</text>
+  <text x="456" y="724" class="s">Dockerfile · Render con render.yaml</text>
+  <rect x="850" y="682" width="400" height="56" rx="10" fill="#f2f4f7"/>
+  <text x="866" y="704" class="t" font-size="14">CI · GitHub Actions</text>
+  <text x="866" y="724" class="s">pytest + trazabilidad + contrato + docker build</text>
+</svg>

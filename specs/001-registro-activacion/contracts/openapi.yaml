@@ -1,0 +1,267 @@
+openapi: 3.1.0
+info:
+  title: Wallet Perú · Registro y activación
+  version: 1.0.0
+  description: >
+    Contrato de SPEC-001. Cada operación declara en `x-spec` los IDs de la spec
+    que cubre. tools/check_contrato.py verifica que estas rutas coincidan con
+    las de la app y que cada ID exista en spec.md.
+
+components:
+  schemas:
+    Error:
+      type: object
+      required: [codigo, mensaje]
+      properties:
+        codigo: {type: string, examples: [PASO_FUERA_DE_ORDEN]}
+        mensaje: {type: string}
+    ErrorValidacion:
+      type: object
+      required: [codigo, mensaje, errores]
+      properties:
+        codigo: {const: DATOS_INVALIDOS}
+        mensaje: {type: string}
+        errores:
+          type: array
+          items:
+            type: object
+            required: [campo, codigo, mensaje]
+            properties:
+              campo: {type: string, examples: [dni]}
+              codigo: {type: string, examples: [DNI_INVALIDO]}
+              mensaje: {type: string, examples: ["El DNI debe tener exactamente 8 dígitos, sin letras ni espacios."]}
+    Paso:
+      type: object
+      required: [orden, clave, titulo, descripcion, estado]
+      properties:
+        orden: {type: integer, minimum: 1, maximum: 5}
+        clave: {enum: [datos_personales, celular, identidad, terminos, clave]}
+        titulo: {type: string}
+        descripcion: {type: string}
+        estado: {enum: [COMPLETADO, ACTUAL, PENDIENTE, FALLIDO]}
+    Onboarding:
+      type: object
+      required: [id, estado, total_pasos, pasos_completados, paso_actual, pasos, siguiente_accion, wallet, puede_pagar]
+      properties:
+        id: {type: string, format: uuid}
+        estado: {enum: [EN_CURSO, COMPLETADO, ABANDONADO, RECHAZADO]}
+        canal_adquisicion: {enum: [organico, redes_sociales, referidos, campana_comercios]}
+        total_pasos: {const: 5}
+        pasos_completados: {type: integer}
+        paso_actual: {oneOf: [{$ref: "#/components/schemas/Paso"}, {type: "null"}]}
+        pasos: {type: array, items: {$ref: "#/components/schemas/Paso"}}
+        siguiente_accion: {type: string, examples: ["Paso 1 de 5: Datos personales. Ingresa tu DNI, nombres y fecha de nacimiento."]}
+        wallet:
+          type: object
+          properties:
+            id: {type: string, format: uuid}
+            estado: {enum: [PENDIENTE, ACTIVA, RECHAZADA]}
+            activada_en: {type: [string, "null"], format: date-time}
+        puede_pagar: {type: boolean}
+        punto_entrada_pagos: {type: [string, "null"]}
+        resumen_datos:
+          type: object
+          description: DNI y celular enmascarados (RS-4).
+          properties:
+            dni: {type: [string, "null"], examples: ["*****912"]}
+            nombres: {type: [string, "null"]}
+            celular: {type: [string, "null"], examples: ["******321"]}
+        iniciado_en: {type: string, format: date-time}
+        cerrado_en: {type: [string, "null"], format: date-time}
+    Evento:
+      type: object
+      description: Sin datos personales (RS-1).
+      required: [id, tipo, onboarding_id, canal, ocurrido_en]
+      properties:
+        id: {type: string}
+        tipo: {enum: [onboarding_iniciado, paso_completado, paso_fallido, wallet_activada, onboarding_cerrado]}
+        onboarding_id: {type: string}
+        canal: {type: string}
+        ocurrido_en: {type: string, format: date-time}
+        paso: {type: string}
+        orden: {type: integer}
+        codigo_error: {type: string}
+        resultado: {enum: [COMPLETADO, ABANDONADO, RECHAZADO]}
+        ultimo_paso: {type: string}
+        duracion_segundos: {type: integer}
+
+  responses:
+    Validacion:
+      description: Datos inválidos u obligatorios faltantes (CA-2).
+      content: {application/json: {schema: {$ref: "#/components/schemas/ErrorValidacion"}}}
+    Conflicto:
+      description: PASO_FUERA_DE_ORDEN u ONBOARDING_CERRADO.
+      content: {application/json: {schema: {$ref: "#/components/schemas/Error"}}}
+    NoEncontrado:
+      description: Recurso inexistente.
+      content: {application/json: {schema: {$ref: "#/components/schemas/Error"}}}
+
+paths:
+  /api/salud:
+    get:
+      summary: Estado del servicio
+      x-spec: [RNF-4]
+      responses:
+        "200": {description: OK}
+
+  /api/onboarding/pasos:
+    get:
+      summary: Catálogo de los 5 pasos
+      x-spec: [CA-1]
+      responses:
+        "200":
+          description: Pasos en orden
+          content: {application/json: {schema: {type: array, items: {$ref: "#/components/schemas/Paso"}}}}
+
+  /api/onboardings:
+    post:
+      summary: Iniciar un onboarding
+      x-spec: [CA-1, CA-4, RN-12]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                canal_adquisicion: {enum: [organico, redes_sociales, referidos, campana_comercios]}
+      responses:
+        "201":
+          description: Registro creado; wallet PENDIENTE; evento onboarding_iniciado
+          content: {application/json: {schema: {$ref: "#/components/schemas/Onboarding"}}}
+        "422": {$ref: "#/components/responses/Validacion"}
+
+  /api/onboardings/{onboarding_id}:
+    get:
+      summary: Estado actual del registro (permite retomar)
+      x-spec: [CA-1]
+      parameters:
+        - {name: onboarding_id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Estado del registro
+          content: {application/json: {schema: {$ref: "#/components/schemas/Onboarding"}}}
+        "404": {$ref: "#/components/responses/NoEncontrado"}
+
+  /api/onboardings/{onboarding_id}/pasos/{paso}:
+    post:
+      summary: Enviar los datos de un paso
+      description: |
+        Cuerpo según el paso:
+        - datos_personales: dni, nombres, apellidos, fecha_nacimiento (RN-1 a RN-3, RN-9)
+        - celular: celular, codigo_otp (RN-4, RN-5)
+        - identidad: autoriza_validacion (RN-6)
+        - terminos: acepta_terminos, acepta_tratamiento_datos (RN-7)
+        - clave: clave, confirmacion_clave (RN-8, RS-2)
+      x-spec: [CA-1, CA-2, CA-3, CA-4, RN-1, RN-2, RN-3, RN-4, RN-5, RN-6, RN-7, RN-8, RN-9, RN-10, RN-11, RS-2, RS-3]
+      parameters:
+        - {name: onboarding_id, in: path, required: true, schema: {type: string}}
+        - {name: paso, in: path, required: true, schema: {enum: [datos_personales, celular, identidad, terminos, clave]}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, additionalProperties: true}
+      responses:
+        "200":
+          description: Paso completado; o registro RECHAZADO si la identidad no se valida
+          content: {application/json: {schema: {$ref: "#/components/schemas/Onboarding"}}}
+        "404": {$ref: "#/components/responses/NoEncontrado"}
+        "409": {$ref: "#/components/responses/Conflicto"}
+        "422": {$ref: "#/components/responses/Validacion"}
+
+  /api/onboardings/{onboarding_id}/abandonar:
+    post:
+      summary: Salir del registro
+      x-spec: [CA-4, RN-11]
+      parameters:
+        - {name: onboarding_id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Registro ABANDONADO; evento onboarding_cerrado
+          content: {application/json: {schema: {$ref: "#/components/schemas/Onboarding"}}}
+        "404": {$ref: "#/components/responses/NoEncontrado"}
+        "409": {$ref: "#/components/responses/Conflicto"}
+
+  /api/onboardings/{onboarding_id}/eventos:
+    get:
+      summary: Eventos analíticos del registro
+      x-spec: [CA-4, RS-1]
+      parameters:
+        - {name: onboarding_id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200":
+          description: Eventos en orden
+          content: {application/json: {schema: {type: array, items: {$ref: "#/components/schemas/Evento"}}}}
+        "404": {$ref: "#/components/responses/NoEncontrado"}
+
+  /api/wallets/{wallet_id}/pagos:
+    get:
+      summary: Punto de entrada de pagos de bajo monto
+      x-spec: [CA-3]
+      parameters:
+        - {name: wallet_id, in: path, required: true, schema: {type: string}}
+      responses:
+        "200": {description: Opciones de pago (simuladas)}
+        "403":
+          description: WALLET_NO_ACTIVA
+          content: {application/json: {schema: {$ref: "#/components/schemas/Error"}}}
+        "404": {$ref: "#/components/responses/NoEncontrado"}
+
+  /api/analitica/onboarding:
+    get:
+      summary: Embudo, tasa de finalización y mediana
+      x-spec: [CA-5]
+      parameters:
+        - {name: desde, in: query, schema: {type: string, format: date}}
+        - {name: hasta, in: query, schema: {type: string, format: date}}
+        - {name: incluir_demo, in: query, schema: {type: boolean, default: true}}
+      responses:
+        "200": {description: Resumen con mediana_minutos, cumple_objetivo_mediana, embudo y errores_frecuentes}
+
+  /api/analitica/mensual:
+    get:
+      summary: Reporte mensual de nuevos activos, gasto y CAC
+      x-spec: [CA-5, CA-6]
+      parameters:
+        - {name: incluir_demo, in: query, schema: {type: boolean, default: true}}
+      responses:
+        "200": {description: "Metas y meses: nuevos_usuarios_activos, gasto_adquisicion_pen, cac_pen (null sin gasto), cumplimiento"}
+
+  /api/analitica/eventos:
+    get:
+      summary: Últimos eventos registrados
+      x-spec: [CA-4, RS-1]
+      parameters:
+        - {name: limite, in: query, schema: {type: integer, minimum: 1, maximum: 200, default: 20}}
+        - {name: incluir_demo, in: query, schema: {type: boolean, default: false}}
+      responses:
+        "200": {description: Eventos más recientes primero}
+
+  /api/analitica/gasto:
+    post:
+      summary: Registrar gasto de adquisición
+      x-spec: [CA-6, RN-12]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mes, canal, monto_pen]
+              properties:
+                mes: {type: string, pattern: "^\\d{4}-(0[1-9]|1[0-2])$"}
+                canal: {enum: [organico, redes_sociales, referidos, campana_comercios]}
+                monto_pen: {type: number, exclusiveMinimum: 0}
+      responses:
+        "201": {description: Gasto registrado}
+        "422": {description: Datos del gasto inválidos}
+
+  /api/demo/reiniciar:
+    post:
+      summary: Reiniciar los datos de la demo (solo con DEMO_ENDPOINTS=true)
+      x-spec: [RNF-4]
+      parameters:
+        - {name: con_datos_demo, in: query, schema: {type: boolean, default: true}}
+      responses:
+        "200": {description: Datos reiniciados}
